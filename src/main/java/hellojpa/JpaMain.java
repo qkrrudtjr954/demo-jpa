@@ -1,9 +1,7 @@
 package hellojpa;
 
-import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
-import javax.persistence.Persistence;
+import javax.persistence.*;
+import java.util.List;
 
 public class JpaMain {
     public static void main(String[] args) {
@@ -22,16 +20,22 @@ public class JpaMain {
         transaction.begin();
 
         try {
-            Member member = em.find(Member.class, 1L);
-            member.setName("ParkerA");
+            // jpql 을 통해 직접 쿼리를 작성할 수 있다.
+            // jpql 은 엔티티에 쿼리를 날리는 개념이다. (객체 지향 SQL)
+            List<Member> result = em.createQuery("select m from Member m", Member.class)
+                    .getResultList();
+
+            for (Member m : result) {
+                System.out.println("Member name: "+m.getName());
+            }
+            // 트랜잭션 종료
+            transaction.commit();
         } catch (Exception e) {
             transaction.rollback();
         } finally {
             em.close();
         }
 
-        // 트랜잭션 종료
-        transaction.commit();
 
         // 자원 회수
         em.close();
