@@ -7,22 +7,23 @@ import javax.persistence.Persistence;
 
 public class JpaMain {
     public static void main(String[] args) {
+        // 어플리케이션이 뜰 때, 하나만 생성된다.
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("jpa-demo-application");
 
         // 데이터 베이스 커넥션을 하나 받는다고 생각할 수 있다.
+        // 요청 마다 새로 생성하여 엔티티를 관리한다.
+        // 쓰레드 세이프하지 않아서 공유를 절대하지 않고 쓰고 버려야한다.
         EntityManager em = emf.createEntityManager();
 
-        // jpa 는 트랜잭션의 단위가 중요하다.
+        // jpa 는 무조건 트랜잭션 안에서 사용해야한다.
         EntityTransaction transaction = em.getTransaction();
 
         // 트랜잭션 시작.
         transaction.begin();
 
         try {
-            Member member = new Member();
-            member.setId(2L);
-            member.setName("HelloA");
-            em.persist(member);
+            Member member = em.find(Member.class, 1L);
+            member.setName("ParkerA");
         } catch (Exception e) {
             transaction.rollback();
         } finally {
